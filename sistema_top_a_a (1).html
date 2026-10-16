@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Açaí - Monte seu Pedido</title>
+  <style>
+    :root {
+      --primary: #4a154b;
+      --primary-dark: #350d36;
+      --accent: #25d366;
+      --accent-hover: #1ebd5a;
+      --bg: #f7f4f9;
+      --card-bg: #ffffff;
+      --text: #2c2c2c;
+      --text-light: #666666;
+      --border: #e6daf0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(74, 21, 75, 0.08);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    header p {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* BARRA FIXA DE RESUMO */
+    .bar-summary {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(74, 21, 75, 0.2);
+    }
+
+    .bar-summary strong {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .sec-title {
+      font-size: 1.05rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin: 22px 0 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* CAMPOS DO FORMULÁRIO */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, 
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background-color: #fcfaff;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus {
+      border-color: var(--primary);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(74, 21, 75, 0.1);
+    }
+
+    .req { color: #e74c3c; }
+
+    /* SELEÇÃO DE COPOS */
+    .grid-copos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card-copo {
+      border: 2px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fdfbfd;
+    }
+
+    .card-copo.active {
+      border-color: var(--primary);
+      background: #f4ebf5;
+      box-shadow: 0 2px 8px rgba(74, 21, 75, 0.12);
+    }
+
+    .card-copo .tam {
+      font-size: 1.05rem;
+      color: var(--primary);
+      font-weight: 700;
+      display: block;
+    }
+
+    .card-copo .preco {
+      font-size: 0.9rem;
+      color: #27ae60;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .card-copo .limite {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* BADGE DO CONTADOR */
+    .badge-limite {
+      background: var(--border);
+      color: var(--primary);
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .badge-limite.alert {
+      background: #ff4757;
+      color: #fff;
+    }
+
+    /* ADICIONAIS */
+    .list-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item-opt {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: border-color 0.2s;
+    }
+
+    .item-opt:hover {
+      border-color: #cbb2d6;
+    }
+
+    .item-opt input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* CHECKOUT RESUMO */
+    .checkout-box {
+      background: #fbf8fc;
+      border: 1.5px solid var(--border);
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .row-val {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .row-val.total {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 18px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-submit:active {
+      transform: scale(0.99);
+    }
+
+    /* TOAST AVISO */
+    #toast {
+      visibility: hidden;
+      min-width: 260px;
+      background-color: #ff4757;
+      color: #fff;
+      text-align: center;
+      border-radius: 10px;
+      padding: 12px 16px;
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.3s, fadeout 0.3s 2.7s;
+    }
+
+    @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+    @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🍇 Top Açaí</h1>
+    <p>Monte o seu pedido para entrega rápida</p>
+  </header>
+
+  <!-- Resumo Fixo de Cabeçalho -->
+  <div class="bar-summary">
+    <span>Copo: <strong id="top-copo">300ml</strong></span>
+    <span>Total: <strong id="top-total">R$ 15,00</strong></span>
+  </div>
+
+  <form id="orderForm" onsubmit="event.preventDefault(); finalizarPedido();">
+    
+    <!-- 1. DADOS DE ENTREGA -->
+    <div class="sec-title">📍 Dados para Entrega</div>
+    
+    <div class="form-group">
+      <label>Nome Completo <span class="req">*</span></label>
+      <input type="text" id="nome" placeholder="Digite seu nome" required>
+    </div>
+
+    <div class="form-group">
+      <label>Telefone / WhatsApp <span class="req">*</span></label>
+      <input type="tel" id="telefone" placeholder="(00) 00000-0000" maxlength="15" required onkeyup="mascaraTelefone(this)">
+    </div>
+
+    <div class="form-group">
+      <label>Selecione o Bairro <span class="req">*</span></label>
+      <select id="bairro" required onchange="atualizarValores()">
+        <option value="" disabled selected>-- Escolha seu Bairro --</option>
+        <option value="Centro" data-taxa="5.00">Centro (Taxa: R$ 5,00)</option>
+        <option value="Jardim das Flores" data-taxa="10.00">Jardim das Flores (Taxa: R$ 10,00)</option>
+        <option value="Vila Nova" data-taxa="10.00">Vila Nova (Taxa: R$ 10,00)</option>
+        <option value="São José" data-taxa="10.00">São José (Taxa: R$ 10,00)</option>
+        <option value="Bela Vista" data-taxa="10.00">Bela Vista (Taxa: R$ 10,00)</option>
+        <option value="Outro Bairro" data-taxa="10.00">Outro Bairro (Taxa: R$ 10,00)</option>
+      </select>
+    </div>
+
+    <!-- 2. SELEÇÃO DE TAMANHO -->
+    <div class="sec-title">1. Escolha o Tamanho</div>
+    <div class="grid-copos">
+      <label class="card-copo active" id="card-300">
+        <input type="radio" name="copo" value="300" data-preco="10" data-limite="2" checked onclick="selecionarCopo(this)">
+        <span class="tam">300ml</span>
+        <span class="preco">R$ 10,00</span>
+        <span class="limite">Máx 2 adicionais</span>
+      </label>
+
+      <label class="card-copo" id="card-500">
+        <input type="radio" name="copo" value="500" data-preco="14" data-limite="4" onclick="selecionarCopo(this)">
+        <span class="tam">500ml</span>
+        <span class="preco">R$ 14,00</span>
+        <span class="limite">Máx 4 adicionais</span>
+      </label>
+
+      <label class="card-copo" id="card-700">
+        <input type="radio" name="copo" value="700" data-preco="18" data-limite="6" onclick="selecionarCopo(this)">
+        <span class="tam">700ml</span>
+        <span class="preco">R$ 18,00</span>
+        <span class="limite">Máx 6 adicionais</span>
+      </label>
+
+      <label class="card-copo" id="card-1000">
+        <input type="radio" name="copo" value="1000" data-preco="24" data-limite="8" onclick="selecionarCopo(this)">
+        <span class="tam">1 Litro</span>
+        <span class="preco">R$ 24,00</span>
+        <span class="limite">Máx 8 adicionais</span>
+      </label>
+    </div>
+
+    <!-- 3. ADICIONAIS COM TRAVA -->
+    <div class="sec-title">
+      2. Escolha os Adicionais (+ R$ 2,50 cada)
+      <span id="badge-contador" class="badge-limite">0 / 2</span>
+    </div>
+
+    <div class="list-options">
+      <label class="item-opt">
+        <span>Leite em Pó</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Leite em Pó" onclick="validarAdicional(this)">
+      </label>
+      <label class="item-opt">
+        <span>Banana</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Banana" onclick="validarAdicional(this)">
+      </label>
+      <label class="item-opt">
+        <span>Granola</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Granola" onclick="validarAdicional(this)">
+      </label>
+      <label class="item-opt">
+        <span>Leite Condensado</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Leite Condensado" onclick="validarAdicional(this)">
+      </label>
+      <label class="item-opt">
+        <span>Paçoca</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Paçoca" onclick="validarAdicional(this)">
+      </label>
+      <label class="item-opt">
+        <span>Morango</span>
+        <input type="checkbox" class="chk-adc" value="2.50" data-nome="Morango" onclick="validarAdicional(this)">
+      </label>
+    </div>
+
+    <!-- RESUMO DE VALORES -->
+    <div class="checkout-box">
+      <div class="row-val">
+        <span>Subtotal Açaí + Adicionais:</span>
+        <span id="txt-subtotal">R$ 10,00</span>
+      </div>
+      <div class="row-val">
+        <span>Taxa de Entrega:</span>
+        <span id="txt-taxa">R$ 5,00</span>
+      </div>
+      <div class="row-val total">
+        <span>VALOR TOTAL:</span>
+        <span id="txt-total">R$ 15,00</span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">🚀 Confirmar e Enviar Pedido</button>
+  </form>
+</div>
+
+<!-- Alerta Toast -->
+<div id="toast">⚠️ Limite de adicionais atingido para este copo!</div>
+
+<script>
+  let limiteAtual = 2;
+  let precoCopoAtual = 10.0;
+
+  function mascaraTelefone(v) {
+    let r = v.value.replace(/\D/g, "");
+    r = r.replace(/^(\d{2})(\d)/g, "($1) $2");
+    r = r.replace(/(\d)(\d{4})$/, "$1-$2");
+    v.value = r;
+  }
+
+  function mostrarToast(mensagem) {
+    const toast = document.getElementById("toast");
+    toast.innerText = mensagem;
+    toast.className = "toast show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+  }
+
+  function selecionarCopo(el) {
+    document.querySelectorAll('.card-copo').forEach(c => c.classList.remove('active'));
+    el.closest('.card-copo').classList.add('active');
+
+    limiteAtual = parseInt(el.getAttribute('data-limite'));
+    precoCopoAtual = parseFloat(el.getAttribute('data-preco'));
+
+    const checados = document.querySelectorAll('.chk-adc:checked');
+    if (checados.length > limiteAtual) {
+      mostrarToast(`Ajustamos para ${limiteAtual} adicionais do novo copo!`);
+      checados.forEach((chk, index) => {
+        if (index >= limiteAtual) chk.checked = false;
+      });
+    }
+
+    atualizarValores();
+  }
+
+  function validarAdicional(el) {
+    const checados = document.querySelectorAll('.chk-adc:checked');
+    if (checados.length > limiteAtual) {
+      el.checked = false;
+      mostrarToast(`Copo de ${document.querySelector('input[name="copo"]:checked').value}ml permite no máximo ${limiteAtual} adicionais!`);
+    }
+    atualizarValores();
+  }
+
+  function atualizarValores() {
+    const checados = document.querySelectorAll('.chk-adc:checked');
+    const qtdAdicionais = checados.length;
+
+    const badge = document.getElementById('badge-contador');
+    badge.innerText = `${qtdAdicionais} / ${limiteAtual}`;
+    if (qtdAdicionais >= limiteAtual) {
+      badge.classList.add('alert');
+    } else {
+      badge.classList.remove('alert');
+    }
+
+    let totalAdicionais = 0;
+    checados.forEach(c => totalAdicionais += parseFloat(c.value));
+
+    const subtotal = precoCopoAtual + totalAdicionais;
+
+    const selectBairro = document.getElementById('bairro');
+    const opcaoSelecionada = selectBairro.options[selectBairro.selectedIndex];
+    
+    let taxaEntrega = 5.00;
+    if (opcaoSelecionada && opcaoSelecionada.getAttribute('data-taxa')) {
+      taxaEntrega = parseFloat(opcaoSelecionada.getAttribute('data-taxa'));
+    }
+
+    const valorTotal = subtotal + taxaEntrega;
+
+    document.getElementById('txt-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    document.getElementById('txt-taxa').innerText = `R$ ${taxaEntrega.toFixed(2).replace('.', ',')}`;
+    document.getElementById('txt-total').innerText = `R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+    
+    document.getElementById('top-copo').innerText = `${document.querySelector('input[name="copo"]:checked').value}ml`;
+    document.getElementById('top-total').innerText = `R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+  }
+
+  function finalizarPedido() {
+    const nome = document.getElementById('nome').value;
+    const telefone = document.getElementById('telefone').value;
+    const bairro = document.getElementById('bairro').value;
+    const copoTamanho = document.querySelector('input[name="copo"]:checked').value;
+    const valorTotal = document.getElementById('txt-total').innerText;
+
+    if (!nome || !telefone || !bairro) {
+      mostrarToast('Preencha todos os campos obrigatórios!');
+      return;
+    }
+
+    alert(`✅ PEDIDO CONFIRMADO COM SUCESSO!\n\n` +
+          `Cliente: ${nome}\n` +
+          `Telefone: ${telefone}\n` +
+          `Bairro: ${bairro}\n` +
+          `Copo Escolhido: ${copoTamanho}ml\n` +
+          `Valor Total: ${valorTotal}\n\n` +
+          `O pedido foi enviado para o balcão da Top Açaí!`);
+
+    document.getElementById('orderForm').reset();
+    document.querySelector('input[value="300"]').checked = true;
+    selecionarCopo(document.querySelector('input[value="300"]'));
+  }
+
+  atualizarValores();
+</script>
+
+</body>
+</html>
